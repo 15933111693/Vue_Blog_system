@@ -14,10 +14,10 @@
         prop="roleName"
         label="名称">
         <template slot-scope="scope">
-          <div v-if="!tableData[scope.row.num-1].editStatus">{{ scope.row.roleName }}</div>
-          <el-input v-model="tableData[scope.row.num-1].roleName" v-if="tableData[scope.row.num-1].editStatus" placeholder="请输入新名称" size="mini"></el-input>
-          <el-button v-if="tableData[scope.row.num-1].editStatus" class="button-new-tag" size="small" @click.stop="saveRoleName(tableData[scope.row.num-1])">保存</el-button>
-          <el-button v-if="tableData[scope.row.num-1].editStatus" class="button-new-tag" size="small" @click.stop="cancelEditName(tableData[scope.row.num-1])">取消</el-button>
+          <div v-if="!(tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].editStatus)">{{ scope.row.roleName }}</div>
+          <el-input v-model="tableData[scope.row.num-1].roleName" v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].editStatus" placeholder="请输入新名称" size="mini"></el-input>
+          <el-button v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].editStatus" class="button-new-tag" size="small" @click.stop="saveRoleName(tableData[scope.row.num-1])">保存</el-button>
+          <el-button v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].editStatus" class="button-new-tag" size="small" @click.stop="cancelEditName(tableData[scope.row.num-1])">取消</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -28,10 +28,10 @@
             v-for="right in scope.row.roleRight"
             :key="right.id"
             closable
-            @close="removeAuthority(scope.row.roleName, right.name)">
+            @close="removeAuthority(scope.row.roleName, right.name, right.id, scope.row)">
             {{right.name}}
           </el-tag>
-          <el-select v-model="tableData[scope.row.num-1].newVal" v-if="tableData[scope.row.num-1].show"  placeholder="请选择" size="small" class="input-new-tag">
+          <el-select v-model="tableData[scope.row.num-1].newVal" v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].show"  placeholder="请选择" size="small" class="input-new-tag">
             <el-option
               v-for="editAuthority in tableData[scope.row.num-1].editAuthority"
               :key="editAuthority.id"
@@ -40,9 +40,9 @@
               >
             </el-option>
           </el-select>
-          <el-button v-if="!tableData[scope.row.num-1].show && tableData[scope.row.num-1].editAuthority.length" class="button-new-tag" size="small" @click.stop="showSelect(tableData[scope.row.num-1])">+</el-button>
-          <el-button v-if="tableData[scope.row.num-1].show && tableData[scope.row.num-1].newVal" class="button-new-tag" size="small" @click.stop="save(tableData[scope.row.num-1])">保存</el-button>
-          <el-button v-if="tableData[scope.row.num-1].show" class="button-new-tag" size="small" @click.stop="hideSelect(tableData[scope.row.num-1])">取消</el-button>
+          <el-button v-if="!(tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].show && tableData[scope.row.num-1].editAuthority.length)" class="button-new-tag" size="small" @click.stop="showSelect(tableData[scope.row.num-1])">+</el-button>
+          <el-button v-if="tableData[scope.row.num-1] === undefined ? undefined : (tableData[scope.row.num-1].show && tableData[scope.row.num-1].newVal)" class="button-new-tag" size="small" @click.stop="save(tableData[scope.row.num-1])">保存</el-button>
+          <el-button v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].show" class="button-new-tag" size="small" @click.stop="hideSelect(tableData[scope.row.num-1])">取消</el-button>
         </template>
       </el-table-column>
       <el-table-column width="100px">
@@ -73,8 +73,7 @@ export default {
         right: null,
         // 表格数据
         tableData: null,
-        // 序列
-        num: 0,
+        
       }
     },
     async created() {
@@ -86,6 +85,8 @@ export default {
       async getList() {
         // 获取角色
         const roles = await this.$http.get('/api/roles')
+        // 序列
+        let num = 0
         for(let i of roles) {
           // 处理权限
           const roleRight = await this.$http.get(`/api/roles/${i.id}/right`)
@@ -104,8 +105,8 @@ export default {
           }
           
           // 处理序列
-          this.num++
-          i.num = this.num
+          num++
+          i.num = num
 
           // 处理新增标签显隐
           i.show = false
@@ -118,20 +119,40 @@ export default {
         this.tableData = roles
       },
       // 权限
-      removeAuthority(roleName,right) {
+      async removeAuthority(roleName, right, id, row) {
+        const idList = []
+        for(let i of row.roleRight) {
+          if(id != i.id) idList.push(i.id)
+        }
         this.$confirm(`确定删除 ${roleName} 的 ${right} 权限?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+        }).then(async () => {
+          const res = await this.$http.put(`/api/roles/${row.id}/right`,idList)
+          if(res) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            await this.getList()
+          }
         })
       },
-      save(right) {
-        this.hideSelect(right)
+      async save(role) {
+        const idList = []
+        for(let i of role.roleRight) {
+          idList.push(i.id)
+        }
+        idList.push(role.newVal)
+        const res = await this.$http.put(`/api/roles/${role.id}/right`, idList)
+        if(res) {
+          this.$message({
+            type: 'succsee',
+            message: '添加成功'
+          })
+          await this.getList()
+        }
       },
       showSelect(right) {
         right.show = true
@@ -145,39 +166,52 @@ export default {
       changeEditStatus(role) {
         role.editStatus = true
       },
-      saveRoleName(role) {
-        this.cancelEditName(role)
+      async saveRoleName(role) {
+        const res = await this.$http.put(`/api/roles?roleId=${role.id}&roleName=${role.roleName}`)
+        this.$message({
+          type: 'success',
+          message: '修改成功'
+        })
+        await this.getList()
       },
       cancelEditName(role) {
         role.editStatus = false
       },
 
       // 删除角色
-      deleteUser(role) {
+      async deleteUser(role) {
         this.$confirm(`确定删除 ${role.roleName} 角色?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
+        }).then(async () => {
+          await this.$http.delete(`/api/roles/${role.id}`)
           this.$message({
             type: 'success',
             message: '删除成功!'
           })
+          await this.getList()
         })
       },
 
       // 新增角色
-      addUser() {
+      async addUser() {
         this.$prompt('请输入新角色名称', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          // inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
-          // inputErrorMessage: '邮箱格式不正确'
-        }).then(({ value }) => {
-          this.$message({
-            type: 'success',
-            // message: '你的邮箱是: ' + value
-          });
+          inputPattern: /^[0-9a-zA-Z\u4E00-\u9FFF]+$/,
+          inputErrorMessage: '格式不正确'
+        }).then(async ({ value }) => {
+          const res = await this.$http.post('/api/roles', {name: value})
+          if(res) {
+            await this.getList()
+            this.$message({
+              type: 'success',
+              message: value + '角色添加成功 '
+            })
+            
+          }
+          
         })
       },
 
