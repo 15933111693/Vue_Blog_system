@@ -8,11 +8,13 @@
       </el-table-column>
       <el-table-column
         prop="id"
-        label="ID">
+        label="ID"
+        width="289px">
       </el-table-column>
       <el-table-column
         prop="roleName"
-        label="名称">
+        label="名称"
+        width="80px">
         <template slot-scope="scope">
           <div v-if="!(tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].editStatus)">{{ scope.row.roleName }}</div>
           <el-input v-model="tableData[scope.row.num-1].roleName" v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].editStatus" placeholder="请输入新名称" size="mini"></el-input>
@@ -22,7 +24,8 @@
       </el-table-column>
       <el-table-column
         prop="roleRight"
-        label="权限">
+        label="权限"
+        min-width="460px">
         <template slot-scope="scope">
           <el-tag
             v-for="right in scope.row.roleRight"
