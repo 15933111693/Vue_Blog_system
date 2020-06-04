@@ -40,7 +40,7 @@
               >
             </el-option>
           </el-select>
-          <el-button v-if="!(tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].show && tableData[scope.row.num-1].editAuthority.length)" class="button-new-tag" size="small" @click.stop="showSelect(tableData[scope.row.num-1])">+</el-button>
+          <el-button v-if="(tableData[scope.row.num-1] === undefined ? undefined : (!tableData[scope.row.num-1].show && tableData[scope.row.num-1].editAuthority.length))" class="button-new-tag" size="small" @click.stop="showSelect(tableData[scope.row.num-1])">+</el-button>
           <el-button v-if="tableData[scope.row.num-1] === undefined ? undefined : (tableData[scope.row.num-1].show && tableData[scope.row.num-1].newVal)" class="button-new-tag" size="small" @click.stop="save(tableData[scope.row.num-1])">保存</el-button>
           <el-button v-if="tableData[scope.row.num-1] === undefined ? undefined : tableData[scope.row.num-1].show" class="button-new-tag" size="small" @click.stop="hideSelect(tableData[scope.row.num-1])">取消</el-button>
         </template>
