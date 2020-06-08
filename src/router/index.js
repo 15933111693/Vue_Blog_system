@@ -57,12 +57,12 @@ export const constantRoutes = [
   },
 
   {
-    path: '/admin/user',
+    path: '/admin/userManager',
     component: Layout,
     children: [{
       path: '',
       name: 'User',
-      component: () => import('@/views/User/index'),
+      component: () => import('@/views/UserManager/index'),
       meta: { title: '用户管理', icon: 'user' }
     }]
   },
