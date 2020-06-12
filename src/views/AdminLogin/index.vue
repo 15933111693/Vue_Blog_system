@@ -91,6 +91,9 @@ export default {
     //   immediate: true
     // }
   },
+  async created() {
+    console.log(await this.$axios.get('https://localhost:5001/api_test'))
+  },
   methods: {
     showPwd() {
       if (this.passwordType === 'password') {
@@ -104,6 +107,7 @@ export default {
     },
     async handleLogin() {
       this.$refs.loginForm.validate(async valid => {
+        if(this.loginForm.username.indexOf('@') != -1) this.loginForm.authType = 2
         if (valid) {
           this.loading = true
           await this.$store.dispatch('user/login', this.loginForm).catch(err => this.loading = false)

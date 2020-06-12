@@ -19,6 +19,13 @@
 
       <!-- 表格 -->
       <div class="table">
+        <!-- 新增按钮 -->
+        <div v-if="showAdd" style="float: right;margin-bottom: 10px">
+          <el-button v-if="!addStatus" type="primary" @click="add">新增</el-button>
+          <el-button v-if="addStatus" type="primary" @click="saveAdd">保存</el-button>
+          <el-button v-if="addStatus" type="primary" @click="cancelAdd">取消</el-button>
+        </div>
+
         <el-table :data="tableData" @sort-change="sortChange" border stripe>
           <el-table-column
             v-if="tableData.length"
@@ -32,27 +39,27 @@
             :sortable="col.sortable">
             <template slot-scope="scope">
               <div class="table_row">
-                <div v-if="scope.row.editStatus[col.id] === undefined ? true : !scope.row.editStatus[col.id]"> {{ scope.row[col.id] }} </div> 
-                <el-input v-if="scope.row.editStatus[col.id] === undefined ? false : scope.row.editStatus[col.id]" v-model="scope.row[col.id]" placeholder=""></el-input>
+                <div v-if="scope.row.editStatus ? (scope.row.editStatus[col.id] === undefined ? true : !scope.row.editStatus[col.id]) : !scope.row.editStatus"> {{ scope.row[col.id] }} </div> 
+                <el-input v-if="scope.row.editStatus ? (scope.row.editStatus[col.id] === undefined ? false : scope.row.editStatus[col.id]) : scope.row.editStatus" v-model="scope.row[col.id]" placeholder=""></el-input>
                 <div style="margin-left:1px;">
-                  <el-button v-if="scope.row.editStatus[col.id] === undefined ? false : scope.row.editStatus[col.id]" type="text" @click="save(scope.row)">保存</el-button>
+                  <el-button v-if="scope.row.new === undefined ? (scope.row.editStatus ? (scope.row.editStatus[col.id] === undefined ? false : scope.row.editStatus[col.id]) : scope.row.editStatus) : !scope.row.new" type="text" @click="save(scope.row, col.id)">保存</el-button>
                 </div>
                 <div style="margin-left:1px;">
-                  <el-button v-if="scope.row.editStatus[col.id] === undefined ? false : scope.row.editStatus[col.id]" type="text" @click="cancel(scope.row, col.id)">取消</el-button>
+                  <el-button v-if="scope.row.new === undefined ? (scope.row.editStatus ? (scope.row.editStatus[col.id] === undefined ? false : scope.row.editStatus[col.id]) : scope.row.editStatus) : !scope.row.new" type="text" @click="cancel(scope.row, col.id)">取消</el-button>
                 </div>
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-if="tableData.length && tableData[0].switch" fixed="right" label="审核开关" width="50">
+          <el-table-column v-if="tableData.length && tableData[0].hasOwnProperty('state') && showSwitch" fixed="right" label="审核开关" width="50">
             <template slot-scope="scope">
-              <slot name="table_switch" :col="scope"></slot>
+              <slot name="table_switch" :scope="scope"></slot>
             </template>  
           </el-table-column>
           <el-table-column v-if="tableData.length && (tableData[0].edit || tableData[0].del)" fixed="right" label="操作" :width="table_button_width">
             <template slot-scope="scope" >
+              <slot name="table_button" :scope="scope"></slot>
               <el-button v-if="scope.row.edit" type="text" @click="edit(scope.row)">编辑</el-button>
-              <el-button v-if="scope.row.del" type="text" @click="del(scope.row)">删除</el-button>
-              <slot name="table_button" :col="scope"></slot>
+              <el-button v-if="scope.row.del" type="text" @click="del(scope.$index)">删除</el-button>
             </template>  
           </el-table-column>
         </el-table>
@@ -138,6 +145,18 @@ export default {
       type: Number,
       default: 0
     },
+    showAdd: {
+      type: Boolean,
+      default: false
+    },
+    addObj: {
+      type: Function,
+      default: () => {}
+    },
+    showSwitch: {
+      type: Boolean,
+      default: false
+    },
 
     // 分页
     showPagination: {
@@ -158,6 +177,9 @@ export default {
       // 搜索
       i_search: '',
       i_searchItem: '',
+
+      // 表格
+      addStatus: false,
       
       // 分页
       currentPage: 1
@@ -184,7 +206,7 @@ export default {
   mounted() {
     
     this.$nextTick(() => {
-      this.$refs.select.$el.style.minWidth = '150px' // 设置搜索栏宽度
+      if(this.$refs.select) this.$refs.select.$el.style.minWidth = '150px' // 设置搜索栏宽度
     })
   },
   methods: {
@@ -220,17 +242,37 @@ export default {
       }
       row.oldData = oldData
     },
-    del(row) {
-      this.$emit('del',row)
+    del(index) {
+      this.$emit('del', index)
     },
-    save(row) {
-      this.$emit('save',row)
+    save(row, id) {
+      this.$emit('save', row, id)
     },
     cancel(row, id) {
       row[id] = row.oldData[id]
       delete row.oldData[id]
-      if(row.oldData) delete row.oldData
+      if(!row.oldData) delete row.oldData
       row.editStatus[id] = false
+    },
+    add() {
+      this.addStatus = true
+      const newData = this.addObj()
+      newData.new = true
+      this.tableData.push(newData)
+      this.edit(this.tableData[this.tableData.length-1])
+    },
+    saveAdd() {
+      this.addStatus = false
+      const data = this.tableData[this.tableData.length-1]
+      delete data.new
+      delete data.editStatus
+      delete data.oldData
+      this.$emit('add', data)
+      this.cancelAdd()
+    },
+    cancelAdd() {
+      this.tableData.pop()
+      this.addStatus = false
     }
   }
 }

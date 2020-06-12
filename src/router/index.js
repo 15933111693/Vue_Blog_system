@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import store from '../store'
 import Router from 'vue-router'
 
 Vue.use(Router)
@@ -48,10 +49,17 @@ export const constantRoutes = [
     path: '/admin',
     component: Layout,
     redirect: '/admin/role',
+  },
+
+  {
+    path: '/admin/role',
+    component: Layout,
+    authorize: '管理员',
     children: [{
-      path: 'role',
+      path: '',
       name: 'Role',
       component: () => import('@/views/Role/index'),
+      authorize: '管理员',
       meta: { title: '角色管理', icon: 'role' }
     }]
   },
@@ -59,6 +67,7 @@ export const constantRoutes = [
   {
     path: '/admin/userManager',
     component: Layout,
+    authorize: '管理员',
     children: [{
       path: '',
       name: 'User',
@@ -68,19 +77,40 @@ export const constantRoutes = [
   },
 
   {
+    path: '/admin/barner',
+    component: Layout,
+    authorize: '管理员',
+    children: [{
+      path: '',
+      name: 'Barner',
+      component: () => import('@/views/Barner/index'),
+      meta: { title: 'Barner', icon: 'classify' }
+    }]
+  },
+
+  {
     path: '/admin/article',
     component: Layout,
+    authorize: '管理员',
+    meta: { title: '文章管理', icon: 'article' },
     children: [{
       path: '',
       name: 'Article',
       component: () => import('@/views/ArticleText/index'),
-      meta: { title: '文章管理', icon: 'article' }
+      meta: { title: '文章管理'}
+    },{
+      path: 'articleComment',
+      name: 'ArticleComment',
+      component: () => import('@/views/ArticleText/ArticleComment/index'),
+      hidden: true,
+      meta: { title: '文章评论' }
     }]
   },
 
   {
     path: '/admin/articleSection',
     component: Layout,
+    authorize: '管理员',
     children: [{
       path: '',
       name: 'ArticleSection',
@@ -92,6 +122,7 @@ export const constantRoutes = [
   {
     path: '/admin/articleClassify',
     component: Layout,
+    authorize: '管理员',
     children: [{
       path: '',
       name: 'ArticleClassify',
@@ -101,35 +132,44 @@ export const constantRoutes = [
   },
 
   {
-    path: '/admin/articleComment',
-    component: Layout,
-    children: [{
-      path: '',
-      name: 'ArticleComment',
-      component: () => import('@/views/ArticleComment/index'),
-      meta: { title: '文章评论', icon: 'comment' }
-    }]
-  },
-
-  {
     path: '/admin/createrCenter',
     component: Layout,
+    authorize: '自媒体',
+    meta: { title: '创作者中心', icon: 'creater' },
     children: [{
       path: '',
       name: 'CreaterCenter',
       component: () => import('@/views/CreaterCenter/index'),
-      meta: { title: '创作者中心', icon: 'creater' }
-    }]
+      meta: { title: '创作者' }
+    },
+    {
+      path: 'editor',
+      name: 'Editor',
+      component: () => import('@/views/CreaterCenter/Editor/index'),
+      meta: { title: '编辑器' }
+    }],
+    beforeEnter: (to, from, next) => {
+      if(store.getters.roleName === '管理员') next('/admin')
+      else next()
+    }
   },
 
   {
     path: '/admin/reviewCenter',
     component: Layout,
+    authorize: '管理员',
+    meta: { title: '审核中心', icon: 'review' },
     children: [{
       path: '',
       name: 'ReviewCenter',
       component: () => import('@/views/ReviewCenter/index'),
-      meta: { title: '审核中心', icon: 'review' }
+      meta: { title: '审核中心' }
+    },{
+      path: 'articleContent',
+      name: 'ArticleContent',
+      component: () => import('@/views/ReviewCenter/ArticleContent/index'),
+      hidden: true,
+      meta: { title: '文章' }
     }]
   },
 
