@@ -54,11 +54,12 @@ export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
-      } else {
-        callback()
-      }
+      // if (!validUsername(value)) {
+      //   callback(new Error('请输入正确的用户名'))
+      // } else {
+      //   callback()
+      // }
+      callback()
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
@@ -69,8 +70,8 @@ export default {
     }
     return {
       loginForm: {
-        username: '17692463717',
-        password: '1234567890',
+        username: '',
+        password: '',
         authType: 1
       },
       loginRules: {

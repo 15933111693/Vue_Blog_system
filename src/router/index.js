@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import store from '../store'
 import Router from 'vue-router'
 
 Vue.use(Router)
@@ -54,12 +53,10 @@ export const constantRoutes = [
   {
     path: '/admin/role',
     component: Layout,
-    authorize: '管理员',
     children: [{
       path: '',
       name: 'Role',
       component: () => import('@/views/Role/index'),
-      authorize: '管理员',
       meta: { title: '角色管理', icon: 'role' }
     }]
   },
@@ -67,7 +64,6 @@ export const constantRoutes = [
   {
     path: '/admin/userManager',
     component: Layout,
-    authorize: '管理员',
     children: [{
       path: '',
       name: 'User',
@@ -79,7 +75,6 @@ export const constantRoutes = [
   {
     path: '/admin/barner',
     component: Layout,
-    authorize: '管理员',
     children: [{
       path: '',
       name: 'Barner',
@@ -91,7 +86,6 @@ export const constantRoutes = [
   {
     path: '/admin/article',
     component: Layout,
-    authorize: '管理员',
     meta: { title: '文章管理', icon: 'article' },
     children: [{
       path: '',
@@ -110,7 +104,6 @@ export const constantRoutes = [
   {
     path: '/admin/articleSection',
     component: Layout,
-    authorize: '管理员',
     children: [{
       path: '',
       name: 'ArticleSection',
@@ -122,7 +115,6 @@ export const constantRoutes = [
   {
     path: '/admin/articleClassify',
     component: Layout,
-    authorize: '管理员',
     children: [{
       path: '',
       name: 'ArticleClassify',
@@ -131,33 +123,10 @@ export const constantRoutes = [
     }]
   },
 
-  {
-    path: '/admin/createrCenter',
-    component: Layout,
-    authorize: '自媒体',
-    meta: { title: '创作者中心', icon: 'creater' },
-    children: [{
-      path: '',
-      name: 'CreaterCenter',
-      component: () => import('@/views/CreaterCenter/index'),
-      meta: { title: '创作者' }
-    },
-    {
-      path: 'editor',
-      name: 'Editor',
-      component: () => import('@/views/CreaterCenter/Editor/index'),
-      meta: { title: '编辑器' }
-    }],
-    beforeEnter: (to, from, next) => {
-      if(store.getters.roleName === '管理员') next('/admin')
-      else next()
-    }
-  },
 
   {
     path: '/admin/reviewCenter',
     component: Layout,
-    authorize: '管理员',
     meta: { title: '审核中心', icon: 'review' },
     children: [{
       path: '',
@@ -174,7 +143,7 @@ export const constantRoutes = [
   },
 
   // 404 page must be placed at the end !!!
-  // { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({
