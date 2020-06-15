@@ -50,12 +50,12 @@
       </el-table-column>
       <el-table-column width="100px">
         <template slot-scope="scope">
-          <el-button :disabled="scope.row.roleName === '管理员'" type="primary" size="mini" @click="changeEditStatus(tableData[scope.row.num-1])">编辑名字</el-button>
+          <el-button :disabled="true" type="primary" size="mini" @click="changeEditStatus(tableData[scope.row.num-1])">编辑名字</el-button>
         </template>
       </el-table-column>
       <el-table-column width="70px">
         <template slot-scope="scope">
-          <el-button :disabled="scope.row.roleName === '管理员'" type="danger" size="mini" @click="deleteUser(tableData[scope.row.num-1])">删除</el-button>
+          <el-button :disabled="true" type="danger" size="mini" @click="deleteUser(tableData[scope.row.num-1])">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -123,11 +123,21 @@ export const constantRoutes = [
     }]
   },
 
+  {
+    path: '/admin/creatorReview',
+    component: Layout,
+    children: [{
+      path: '',
+      name: 'CreatorReview',
+      component: () => import('@/views/CreatorReview/index'),
+      meta: { title: '创作者审核', icon: 'review' }
+    }]
+  },
 
   {
     path: '/admin/reviewCenter',
     component: Layout,
-    meta: { title: '审核中心', icon: 'review' },
+    meta: { icon: 'review' },
     children: [{
       path: '',
       name: 'ReviewCenter',

@@ -55,7 +55,7 @@
               <slot name="table_switch" :scope="scope"></slot>
             </template>  
           </el-table-column>
-          <el-table-column v-if="tableData.length && (tableData[0].edit || tableData[0].del)" fixed="right" label="操作" :width="table_button_width">
+          <el-table-column v-if="tableData.length && ((tableData[0].edit || tableData[0].del) || tableData[0].btn)" fixed="right" label="操作" :width="table_button_width">
             <template slot-scope="scope" >
               <slot name="table_button" :scope="scope"></slot>
               <el-button v-if="scope.row.edit" type="text" @click="edit(scope.row)">编辑</el-button>
