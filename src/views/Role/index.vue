@@ -30,7 +30,6 @@
           <el-tag
             v-for="right in scope.row.roleRight"
             :key="right.id"
-            closable
             @close="removeAuthority(scope.row.roleName, right.name, right.id, scope.row)">
             {{right.name}}
           </el-tag>
